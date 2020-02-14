@@ -1,4 +1,4 @@
-import React, {Component, useState, useEffect, createContext} from 'react';
+import React, {Component, useState, useEffect, createContext, useContext, useMemo} from 'react';
 import './App.css';
 
 const CountContext = createContext()
@@ -15,8 +15,22 @@ class Foo extends Component {
     }
 }
 
+function Counter() {
+    const count = useContext(CountContext)
+    return (
+        <h1>Counter: {count}</h1>
+    )
+}
+
+function TestMemo(props) {
+    return (
+        <h1>TestMemo: {props.count}</h1>
+    )
+}
+
 class Bar extends Component {
     static contextType = CountContext
+
     render() {
         const count = this.context
         return (
@@ -53,6 +67,7 @@ function App() {
     const onClick = () => {
         console.log('click')
     }
+    // 渲染后
     useEffect(() => {
         document.querySelector('#size').addEventListener('click', onClick, false)
         return () => {
@@ -60,6 +75,13 @@ function App() {
 
         }
     })
+    // 渲染期间
+    const double = useMemo(() => {
+        return params.count * 2
+    }, [params.count])
+    const half = useMemo(()=>{
+        return double / 4
+    },[double])
     return (
         <div>
             <button type="button" onClick={() => {
@@ -71,9 +93,12 @@ function App() {
                     ? <span id={'size'}>({size.width}x{size.height})</span>
                     : <p id={'size'}>奥利给</p>
             }
+            <p>double: {double}</p>
+            <TestMemo count={params.count}/>
             <CountContext.Provider value={params.count}>
                 <Foo/>
                 <Bar/>
+                <Counter/>
             </CountContext.Provider>
 
         </div>
