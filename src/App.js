@@ -1,5 +1,30 @@
-import React, {useState, useEffect} from 'react';
+import React, {Component, useState, useEffect, createContext} from 'react';
 import './App.css';
+
+const CountContext = createContext()
+
+class Foo extends Component {
+    render() {
+        return (
+            <CountContext.Consumer>
+                {
+                    count => <h1>Foo: {count}</h1>
+                }
+            </CountContext.Consumer>
+        )
+    }
+}
+
+class Bar extends Component {
+    static contextType = CountContext
+    render() {
+        const count = this.context
+        return (
+            <h1>Bar: {count}</h1>
+
+        )
+    }
+}
 
 function App() {
     const [params, setCount] = useState({count: 0})
@@ -28,10 +53,10 @@ function App() {
     const onClick = () => {
         console.log('click')
     }
-    useEffect(()=>{
-        document.querySelector('#size').addEventListener('click', onClick,false)
+    useEffect(() => {
+        document.querySelector('#size').addEventListener('click', onClick, false)
         return () => {
-            document.querySelector('#size').removeEventListener('click', onClick,false)
+            document.querySelector('#size').removeEventListener('click', onClick, false)
 
         }
     })
@@ -42,10 +67,14 @@ function App() {
             }}>点我({params.count})
             </button>
             {
-                params.count%2
-                ?<span id={'size'}>({size.width}x{size.height})</span>
-                :<p id={'size'}>奥利给</p>
+                params.count % 2
+                    ? <span id={'size'}>({size.width}x{size.height})</span>
+                    : <p id={'size'}>奥利给</p>
             }
+            <CountContext.Provider value={params.count}>
+                <Foo/>
+                <Bar/>
+            </CountContext.Provider>
 
         </div>
 
