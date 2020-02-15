@@ -8,9 +8,19 @@ import './App.css';
 import {createAdd, createRemove, createSet, createToggle} from "./actions";
 
 let idSeq = Date.now()
-
+function bindActionCreater(actionCreators,dispatch) {
+    const ret = {}
+    for (let key in actionCreators){
+        ret[key] = function (...args) {
+            const actionCreator = actionCreators[key]
+            const action = actionCreator(...args)
+            dispatch(action)
+        }
+    }
+    return ret
+}
 const Control = memo(function (props) {
-    const {dispatch} = props
+    const {addTodo} = props
     const inputRef = useRef()
     const onSubmit = (e) => {
         e.preventDefault()
@@ -25,11 +35,18 @@ const Control = memo(function (props) {
         //         complete: false
         //     }
         // })
-        dispatch(createAdd({
-            id: ++idSeq,
-            text: newText,
-            complete: false
-        }))
+        // dispatch(createAdd({
+        //     id: ++idSeq,
+        //     text: newText,
+        //     complete: false
+        // }))
+        addTodo(
+            {
+                id: ++idSeq,
+                text: newText,
+                complete: false
+            }
+        )
 
         inputRef.current.value = ''
     }
@@ -143,7 +160,13 @@ function TodoList() {
 
     return (
         <div className="todo-list">
-            <Control dispatch={dispatch}/>
+            <Control
+                {
+                    ...bindActionCreater({
+                        addTodo: createAdd
+                    }, dispatch)
+                }
+            />
             <Todos dispatch={dispatch} todos={todos}/>
         </div>
 
