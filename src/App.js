@@ -5,6 +5,7 @@ import React, {
     memo
 } from 'react';
 import './App.css';
+import {createAdd, createRemove, createSet, createToggle} from "./actions";
 
 let idSeq = Date.now()
 
@@ -17,13 +18,18 @@ const Control = memo(function (props) {
         if (!newText) {
             return
         }
-        dispatch({
-            type: 'add', payload: {
-                id: ++idSeq,
-                text: newText,
-                complete: false
-            }
-        })
+        // dispatch({
+        //     type: 'add', payload: {
+        //         id: ++idSeq,
+        //         text: newText,
+        //         complete: false
+        //     }
+        // })
+        dispatch(createAdd({
+            id: ++idSeq,
+            text: newText,
+            complete: false
+        }))
 
         inputRef.current.value = ''
     }
@@ -39,10 +45,12 @@ const Control = memo(function (props) {
 const TodoItem = memo(function TodoItem(props) {
     const {todo: {id, text, complete}, dispatch} = props
     const onChange = () => {
-        dispatch({type: 'toggle', payload: id})
+        // dispatch({type: 'toggle', payload: id})
+        dispatch(createToggle(id))
     }
     const onRemove = () => {
-        dispatch({type: 'remove', payload: id})
+        // dispatch({type: 'remove', payload: id})
+        dispatch(createRemove(id))
     }
     return (
         <li className={"todo-item"}>
@@ -98,7 +106,7 @@ function TodoList() {
     //     type: 'add',
     //     payload: todo,
     // }
-    const dispatch = (action) => {
+    const dispatch = useCallback((action) => {
         const {type, payload} = action
         switch (type) {
             case 'set':
@@ -122,11 +130,12 @@ function TodoList() {
                 break
             default:
         }
-    }
+    }, [])
     useEffect(() => {
         const todos = JSON.parse(localStorage.getItem(LS_KEY) || '[]')
         // setTodos(todos)
-        dispatch({type: 'set', payload: todos})
+        // dispatch({type: 'set', payload: todos})
+        dispatch(createSet(todos))
     }, [])
     useEffect(() => {
         localStorage.setItem(LS_KEY, JSON.stringify(todos))
