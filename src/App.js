@@ -8,9 +8,10 @@ import './App.css';
 import {createAdd, createRemove, createSet, createToggle} from "./actions";
 
 let idSeq = Date.now()
-function bindActionCreater(actionCreators,dispatch) {
+
+function bindActionCreater(actionCreators, dispatch) {
     const ret = {}
-    for (let key in actionCreators){
+    for (let key in actionCreators) {
         ret[key] = function (...args) {
             const actionCreator = actionCreators[key]
             const action = actionCreator(...args)
@@ -19,6 +20,7 @@ function bindActionCreater(actionCreators,dispatch) {
     }
     return ret
 }
+
 const Control = memo(function (props) {
     const {addTodo} = props
     const inputRef = useRef()
@@ -99,6 +101,7 @@ const LS_KEY = '$todo'
 
 function TodoList() {
     const [todos, setTodos] = useState([])
+    const [incrementCount, setIncrementCount] = useState(0)
     // const addTodo = useCallback((todo) => {
     //     setTodos(todos => [...todos, todo])
     // }, [])
@@ -123,31 +126,58 @@ function TodoList() {
     //     type: 'add',
     //     payload: todo,
     // }
-    const dispatch = useCallback((action) => {
+
+    function reducer(state, action) {
         const {type, payload} = action
+        const {todos, incrementCount} = state
         switch (type) {
             case 'set':
-                setTodos(payload)
-                break
+                return {
+                    ...state,
+                    todos: payload,
+                    incrementCount: incrementCount + 1
+                }
             case 'add':
-                setTodos(todos => [...todos, payload])
-                break
+                return {
+                    ...state,
+                    todos: [...todos, payload],
+                    incrementCount: incrementCount + 1
+                }
             case 'remove':
-                setTodos(todos => todos.filter(todo => todo.id !== payload))
-                break
+                return {
+                    ...state,
+                    todos: todos.filter(todo => todo.id !== payload)
+                }
             case 'toggle':
-                setTodos(todos => todos.map(todo => {
-                    return todo.id === payload ?
-                        {
-                            ...todo,
-                            complete: !todo.complete
-                        }
-                        : todo
-                }))
-                break
-            default:
+                return {
+                    ...state,
+                    todos: todos.map(todo => {
+                        return todo.id === payload ?
+                            {
+                                ...todo,
+                                complete: !todo.complete
+                            }
+                            : todo
+                    })
+                }
         }
-    }, [])
+        return state
+    }
+
+    const dispatch = useCallback((action) => {
+        const state = {
+            todos,
+            incrementCount
+        }
+        const setters = {
+            todos: setTodos,
+            incrementCount: setIncrementCount
+        }
+        const newState = reducer(state, action)
+        for (let key in newState){
+            setters[key](newState[key])
+        }
+    }, [todos,incrementCount])
     useEffect(() => {
         const todos = JSON.parse(localStorage.getItem(LS_KEY) || '[]')
         // setTodos(todos)
