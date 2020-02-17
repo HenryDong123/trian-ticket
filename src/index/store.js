@@ -5,15 +5,15 @@ import thunk from 'redux-thunk'
 export default createStore(
     combineReducers(reducer),
     {
-        from: '北京',
+        from: '长沙',
         to: '上海',
         isCitySelectorVisible: false,
         currentSelectingLeftCity: false,
         cityData: null,
         isLoadingCityData: false,
         isDateSelectorVisible: false,
-        departDate: [],
-        highSpeed: false
+        departDate: Date.now(),
+        highSpeed: false,
     },
     applyMiddleware(thunk)
 )
