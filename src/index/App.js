@@ -11,13 +11,16 @@ import {
     fetchCityData,
     hideCitySelector,
     hideDateSelector,
+    setDepartDate,
     setSelectedCity,
     showCitySelector,
-    showDateSelector
+    showDateSelector,
+    toggleHighSpeed
 } from "./actions";
 import {bindActionCreators} from "redux";
 import CitySelector from "../components/city-selector/CitySelector";
 import DataSelector from "../components/date-selector/DataSelector";
+import {h0} from "../common/fp";
 
 function App(props) {
     const {
@@ -28,7 +31,8 @@ function App(props) {
         isLoadingCityData,
         dispatch,
         departDate,
-        isDateSelectorVisible
+        isDateSelectorVisible,
+        highSpeed
     } = props
     console.log(props)
     const onBack = useCallback(() => {
@@ -58,24 +62,41 @@ function App(props) {
             onClick: showDateSelector
         }, dispatch)
     }, [dispatch])
-    const dateSelectorCbs = useMemo(()=>{
+    const dateSelectorCbs = useMemo(() => {
         return bindActionCreators({
-            onBack: hideDateSelector
-        },dispatch)
-    })
+            onBack: hideDateSelector,
+        }, dispatch)
+    },[dispatch])
+    const toggleHighSpeedCbs = useMemo(() => {
+        return bindActionCreators({
+            toggle: toggleHighSpeed,
+        }, dispatch)
+    },[dispatch])
+    const onSelectDate = useCallback((day) => {
+        console.log(1)
+        if (!day) {
+            return
+        }
+        if (day < h0()) {
+            return
+        }
+        dispatch(setDepartDate(day))
+        dispatch(hideDateSelector())
+
+    }, [dispatch])
     return (
         <div>
             <div className={"header-wrapper"}>
-                <Header title={'火车票'} onBack={onBack}/>
+                <Header title={'火车票'} onBack={onBack} noBack/>
             </div>
-            <form className={"form"}>
+            <form action="./query.html" className={"form"}>
                 <Journey
                     from={from}
                     to={to}
                     {...cbs}
                 />
                 <DepartDate time={departDate} {...departDateCbs}/>
-                <HighSpeed/>
+                <HighSpeed highSpeed={highSpeed} {...toggleHighSpeedCbs}/>
                 <Submit/>
             </form>
             <CitySelector
@@ -84,7 +105,7 @@ function App(props) {
                 isLoading={isLoadingCityData}
                 {...citySelectorCbs}
             />
-            <DataSelector show={isDateSelectorVisible} {...dateSelectorCbs}/>
+            <DataSelector show={isDateSelectorVisible} {...dateSelectorCbs} onSelect={onSelectDate}/>
         </div>
     )
 }
