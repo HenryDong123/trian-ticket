@@ -197,7 +197,7 @@ module.exports = function (webpackEnv) {
             // In development, it does not produce real files.
             filename: isEnvProduction
                 ? 'static/js/[name].[contenthash:8].js'
-                : isEnvDevelopment && 'static/js/bundle.js',
+                : isEnvDevelopment && 'static/js/[name].js',
             // TODO: remove this when upgrading to webpack 5
             futureEmitAssets: true,
             // There are also additional JS chunk files if you use code splitting.
@@ -538,6 +538,12 @@ module.exports = function (webpackEnv) {
         },
         plugins: [
             // Generates an `index.html` file with the <script> injected.
+            // process.env.GENERATE_BUNDLE_ANALYZER === 'true' &&
+            // new BundleAnalyzerPlugin({
+            //     openAnalyzer: false,
+            //     analyzerMode: 'static',
+            // }),
+            // Generates an `index.html` file with the <script> injected.
             new HtmlWebpackPlugin(
                 Object.assign(
                     {},
@@ -545,7 +551,7 @@ module.exports = function (webpackEnv) {
                         inject: true,
                         template: paths.appHtml,
                         filename: 'index.html',
-                        chunks: ['index']
+                        chunks: ['index'],
                     },
                     isEnvProduction
                         ? {
@@ -572,7 +578,7 @@ module.exports = function (webpackEnv) {
                         inject: true,
                         template: paths.appQueryHtml,
                         filename: 'query.html',
-                        chunks: ['query']
+                        chunks: ['query'],
                     },
                     isEnvProduction
                         ? {
@@ -599,7 +605,7 @@ module.exports = function (webpackEnv) {
                         inject: true,
                         template: paths.appTicketHtml,
                         filename: 'ticket.html',
-                        chunks: ['ticket']
+                        chunks: ['ticket'],
                     },
                     isEnvProduction
                         ? {
@@ -626,7 +632,7 @@ module.exports = function (webpackEnv) {
                         inject: true,
                         template: paths.appOrderHtml,
                         filename: 'order.html',
-                        chunks: ['order']
+                        chunks: ['order'],
                     },
                     isEnvProduction
                         ? {
